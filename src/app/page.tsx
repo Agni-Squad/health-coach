@@ -15,7 +15,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/register');
+      router.push('/login');
       return;
     }
     // Mock user for UI focus
