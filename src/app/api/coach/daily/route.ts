@@ -28,11 +28,11 @@ export async function GET(req: Request) {
     const sleep = await prisma.sleepLog.findMany({ where: { userId, logDate: { gte: today } } });
     const goal = await prisma.goal.findFirst({ where: { userId } });
 
-    const totalCals = meals.reduce((sum, m) => sum + m.calories, 0);
-    const totalProtein = meals.reduce((sum, m) => sum + m.protein, 0);
-    const totalSteps = steps.reduce((sum, s) => sum + s.steps, 0);
-    const totalWater = water.reduce((sum, w) => sum + w.quantityMl, 0);
-    const totalSleep = sleep.reduce((sum, s) => sum + s.hours, 0);
+    const totalCals = meals.reduce((sum: number, m: any) => sum + m.calories, 0);
+    const totalProtein = meals.reduce((sum: number, m: any) => sum + m.protein, 0);
+    const totalSteps = steps.reduce((sum: number, s: any) => sum + s.steps, 0);
+    const totalWater = water.reduce((sum: number, w: any) => sum + w.quantityMl, 0);
+    const totalSleep = sleep.reduce((sum: number, s: any) => sum + s.hours, 0);
 
     const fallbackAdvice = `You consumed ${Math.round((totalCals/(goal?.dailyCalorieTarget || 2000))*100)}% of your daily calorie target. Keep your hydration on track!`;
 
