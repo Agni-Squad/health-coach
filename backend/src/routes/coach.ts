@@ -1,0 +1,82 @@
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import jwt from 'jsonwebtoken';
+
+const coachRouter = Router();
+const prisma = new PrismaClient();
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+const authenticate = (req: any, res: any, next: any) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'No token provided' });
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    req.userId = decoded.userId;
+    next();
+  } catch (e) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+coachRouter.get('/daily', authenticate, async (req: any, res: any) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Fetch daily aggregations
+    const meals = await prisma.mealLog.findMany({ where: { userId: req.userId, mealTime: { gte: today } } });
+    const steps = await prisma.stepLog.findMany({ where: { userId: req.userId, logDate: { gte: today } } });
+    const water = await prisma.waterLog.findMany({ where: { userId: req.userId, logTime: { gte: today } } });
+    const sleep = await prisma.sleepLog.findMany({ where: { userId: req.userId, logDate: { gte: today } } });
+    const goal = await prisma.goal.findFirst({ where: { userId: req.userId } });
+
+    const totalCals = meals.reduce((sum, m) => sum + m.calories, 0);
+    const totalProtein = meals.reduce((sum, m) => sum + m.protein, 0);
+    const totalSteps = steps.reduce((sum, s) => sum + s.steps, 0);
+    const totalWater = water.reduce((sum, w) => sum + w.quantityMl, 0);
+    const totalSleep = sleep.reduce((sum, s) => sum + s.hours, 0);
+
+    const fallbackAdvice = `You consumed ${Math.round((totalCals/(goal?.dailyCalorieTarget || 2000))*100)}% of your daily calorie target. Keep your hydration on track!`;
+
+    if (!process.env.GEMINI_API_KEY) {
+      return res.json({ adviceText: fallbackAdvice, categories: 'Diet, Activity' });
+    }
+
+    const prompt = `You are an AI Health Coach. 
+User's data for today:
+- Calories Consumed: ${totalCals} (Target: ${goal?.dailyCalorieTarget || 2000})
+- Protein Consumed: ${totalProtein}g (Target: ${goal?.proteinTargetGrams || 50}g)
+- Steps: ${totalSteps} (Target: ${goal?.stepTarget || 10000})
+- Water: ${totalWater}ml (Target: ${goal?.waterTargetMl || 2000}ml)
+- Sleep: ${totalSleep} hours
+
+Write a short, friendly, advisory-only recommendation (2-3 sentences max) based on this data. Use emojis. Do not provide medical diagnosis.
+Return ONLY a valid JSON object with the exact keys: {"adviceText": string, "categories": string}`;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text().trim();
+    if (text.startsWith('```json')) text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const parsed = JSON.parse(text);
+
+    // Save recommendation
+    await prisma.aIRecommendation.create({
+      data: {
+        userId: req.userId,
+        adviceText: parsed.adviceText,
+        categories: parsed.categories
+      }
+    });
+
+    res.json(parsed);
+  } catch (error) {
+    console.error("Coach API Error:", error);
+    res.json({ adviceText: "Keep up the good work today! Make sure you stay hydrated and active.", categories: "General" });
+  }
+});
+
+export { coachRouter };
