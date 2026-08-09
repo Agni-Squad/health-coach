@@ -23,6 +23,10 @@ export default function Header() {
     setUserName(name);
   }, []);
 
+  if (pathname === '/login' || pathname === '/register') {
+    return null;
+  }
+
   const handleLogout = () => {
     // Clear stored session/authentication tokens
     localStorage.removeItem('token');
