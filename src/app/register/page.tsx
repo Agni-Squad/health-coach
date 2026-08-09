@@ -201,28 +201,46 @@ export default function Register() {
           {step === 2 && (
             <form onSubmit={handleFinalSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <input name="name" placeholder="Full Name" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.name} onChange={handleChange} required />
-                <input name="phone" placeholder="Phone" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.phone} onChange={handleChange} required />
-                
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '2px', marginLeft: '4px' }}>Date of Birth</label>
-                  <input name="dateOfBirth" type="date" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.dateOfBirth} onChange={handleChange} required />
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Full Name</label>
+                  <input name="name" placeholder="John Doe" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.name} onChange={handleChange} required />
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '2px', marginLeft: '4px' }}>Gender</label>
-                  <select name="gender" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.gender} onChange={handleChange}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Phone Number</label>
+                  <input name="phone" placeholder="+1 234 567 8900" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.phone} onChange={handleChange} required />
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Date of Birth</label>
+                  <input name="dateOfBirth" type="date" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.dateOfBirth} onChange={handleChange} required />
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Gender</label>
+                  <select name="gender" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.gender} onChange={handleChange}>
                     <option>Male</option><option>Female</option><option>Other</option>
                   </select>
                 </div>
 
-                <input name="heightCm" type="number" placeholder="Height (cm)" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.heightCm} onChange={handleChange} required />
-                <input name="currentWeightKg" type="number" step="0.1" placeholder="Weight (kg)" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.currentWeightKg} onChange={handleChange} required />
-                <input name="targetWeightKg" type="number" step="0.1" placeholder="Target Weight (kg)" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.targetWeightKg} onChange={handleChange} required />
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Height (cm)</label>
+                  <input name="heightCm" type="number" placeholder="175" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.heightCm} onChange={handleChange} required />
+                </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '2px', marginLeft: '4px' }}>Lifestyle</label>
-                  <select name="lifestyle" style={{ padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '13px' }} value={formData.lifestyle} onChange={handleChange}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Current Weight (kg)</label>
+                  <input name="currentWeightKg" type="number" step="0.1" placeholder="70.5" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.currentWeightKg} onChange={handleChange} required />
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Target Weight (kg)</label>
+                  <input name="targetWeightKg" type="number" step="0.1" placeholder="65.0" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.targetWeightKg} onChange={handleChange} required />
+                </div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <label style={{ fontSize: '11px', color: '#64748B', marginBottom: '4px', marginLeft: '4px' }}>Lifestyle</label>
+                  <select name="lifestyle" style={{ fontFamily: 'inherit', padding: '12px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', fontSize: '14px' }} value={formData.lifestyle} onChange={handleChange}>
                     <option>Sedentary</option><option>Lightly Active</option>
                     <option>Moderately Active</option><option>Very Active</option>
                   </select>
