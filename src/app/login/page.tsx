@@ -70,7 +70,7 @@ export default function Login() {
         display: 'flex', 
         width: '100%', 
         maxWidth: '1000px', 
-        height: '650px',
+        minHeight: '550px',
         background: 'rgba(255, 255, 255, 0.95)',
         borderRadius: '24px',
         boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
@@ -78,9 +78,9 @@ export default function Login() {
       }}>
         
         {/* Left Side: Login Form */}
-        <div style={{ flex: 1, padding: '48px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ flex: 1, padding: '40px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px' }}>
             <div style={{ width: '32px', height: '32px', background: '#0F172A', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white', fontWeight: 'bold' }}>
               W
             </div>
@@ -89,20 +89,20 @@ export default function Login() {
             </span>
           </div>
 
-          <h1 style={{ fontSize: '32px', fontWeight: 700, marginBottom: '24px', color: '#0F172A' }}>Log in</h1>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '20px', color: '#0F172A' }}>Log in</h1>
           
           {error && (
-            <div style={{ padding: '12px', backgroundColor: '#FEE2E2', color: '#EF4444', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
+            <div style={{ padding: '12px', backgroundColor: '#FEE2E2', color: '#EF4444', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <input 
               name="email" 
               type="email" 
               placeholder="Email"
-              style={{ width: '100%', padding: '16px', borderRadius: '12px', border: 'none', background: '#F1F5F9', outline: 'none', fontSize: '15px' }}
+              style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', background: '#F1F5F9', outline: 'none', fontSize: '14px' }}
               onChange={handleChange} 
               required 
             />
@@ -111,7 +111,7 @@ export default function Login() {
               name="password" 
               type="password" 
               placeholder="Password"
-              style={{ width: '100%', padding: '16px', borderRadius: '12px', border: 'none', background: '#F1F5F9', outline: 'none', fontSize: '15px' }}
+              style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', background: '#F1F5F9', outline: 'none', fontSize: '14px' }}
               onChange={handleChange} 
               required 
             />
@@ -125,8 +125,8 @@ export default function Login() {
             </div>
 
             <button type="submit" disabled={loading} style={{ 
-              width: '100%', padding: '16px', borderRadius: '12px', background: '#0F172A', color: 'white', 
-              fontSize: '16px', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '16px',
+              width: '100%', padding: '14px', borderRadius: '12px', background: '#0F172A', color: 'white', 
+              fontSize: '15px', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '12px',
               transition: 'transform 0.1s'
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -135,7 +135,7 @@ export default function Login() {
             </button>
           </form>
 
-          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0' }}>
             <div style={{ flex: 1, height: '1px', backgroundColor: '#E2E8F0' }}></div>
             <span style={{ padding: '0 12px', fontSize: '12px', color: '#64748B' }}>OR</span>
             <div style={{ flex: 1, height: '1px', backgroundColor: '#E2E8F0' }}></div>
@@ -144,9 +144,9 @@ export default function Login() {
           <button 
             onClick={handleGoogleLogin}
             style={{ 
-              width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: 'white',
+              width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: 'white',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer',
-              fontSize: '15px', fontWeight: 600, color: '#0F172A', transition: 'background-color 0.2s'
+              fontSize: '14px', fontWeight: 600, color: '#0F172A', transition: 'background-color 0.2s'
             }}
             onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#F8FAFC'}
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
@@ -160,7 +160,7 @@ export default function Login() {
             Sign in with Google
           </button>
 
-          <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '14px', color: '#64748B' }}>
+          <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: '#64748B' }}>
             Don't have an account? <Link href="/register" style={{ color: '#0F172A', textDecoration: 'underline', fontWeight: 600 }}>Register</Link>
           </div>
           
@@ -169,7 +169,7 @@ export default function Login() {
         {/* Right Side: Image */}
         <div style={{ 
           flex: 1, 
-          background: 'url("https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=1000") center/cover',
+          background: 'url("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1000") center/cover',
           display: 'flex',
           alignItems: 'flex-end',
           padding: '40px'
