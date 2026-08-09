@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import jwt from 'jsonwebtoken';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization');
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
   const token = authHeader.split(' ')[1];
   let userId;
   try {
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET || 'super-secret-key');
+    const decoded: any = jwt.verify(token, JWT_SECRET);
     userId = decoded.userId;
   } catch (e) {
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
@@ -20,19 +21,29 @@ export async function GET(req: Request) {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const startIso = today.toISOString();
 
-    // Fetch daily aggregations
-    const meals = await prisma.mealLog.findMany({ where: { userId, mealTime: { gte: today } } });
-    const steps = await prisma.stepLog.findMany({ where: { userId, logDate: { gte: today } } });
-    const water = await prisma.waterLog.findMany({ where: { userId, logTime: { gte: today } } });
-    const sleep = await prisma.sleepLog.findMany({ where: { userId, logDate: { gte: today } } });
-    const goal = await prisma.goal.findFirst({ where: { userId } });
+    const [
+      { data: meals },
+      { data: steps },
+      { data: water },
+      { data: sleep },
+      { data: goals }
+    ] = await Promise.all([
+      supabase.from('MealLog').select('*').eq('userId', userId).gte('mealTime', startIso),
+      supabase.from('StepLog').select('*').eq('userId', userId).gte('logDate', startIso),
+      supabase.from('WaterLog').select('*').eq('userId', userId).gte('logTime', startIso),
+      supabase.from('SleepLog').select('*').eq('userId', userId).gte('logDate', startIso),
+      supabase.from('Goal').select('*').eq('userId', userId).order('createdAt', { ascending: false }).limit(1)
+    ]);
 
-    const totalCals = meals.reduce((sum: number, m: any) => sum + m.calories, 0);
-    const totalProtein = meals.reduce((sum: number, m: any) => sum + m.protein, 0);
-    const totalSteps = steps.reduce((sum: number, s: any) => sum + s.steps, 0);
-    const totalWater = water.reduce((sum: number, w: any) => sum + w.quantityMl, 0);
-    const totalSleep = sleep.reduce((sum: number, s: any) => sum + s.hours, 0);
+    const goal = goals && goals.length > 0 ? goals[0] : null;
+
+    const totalCals = (meals || []).reduce((sum: number, m: any) => sum + m.calories, 0);
+    const totalProtein = (meals || []).reduce((sum: number, m: any) => sum + m.protein, 0);
+    const totalSteps = (steps || []).reduce((sum: number, s: any) => sum + s.steps, 0);
+    const totalWater = (water || []).reduce((sum: number, w: any) => sum + w.quantityMl, 0);
+    const totalSleep = (sleep || []).reduce((sum: number, s: any) => sum + s.hours, 0);
 
     const fallbackAdvice = `You consumed ${Math.round((totalCals/(goal?.dailyCalorieTarget || 2000))*100)}% of your daily calorie target. Keep your hydration on track!`;
 
@@ -60,13 +71,11 @@ Return ONLY a valid JSON object with the exact keys: {"adviceText": "...", "cate
     const parsed = JSON.parse(text);
 
     // Save recommendation
-    await prisma.aIRecommendation.create({
-      data: {
-        userId,
-        adviceText: parsed.adviceText,
-        categories: parsed.categories
-      }
-    });
+    await supabase.from('AIRecommendation').insert([{
+      userId,
+      adviceText: parsed.adviceText,
+      categories: parsed.categories
+    }]);
 
     return NextResponse.json(parsed);
   } catch (error) {

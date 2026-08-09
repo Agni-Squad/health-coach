@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
@@ -22,11 +22,19 @@ export async function POST(req: Request) {
 
   try {
     const { quantityMl } = await req.json();
-    const waterLog = await prisma.waterLog.create({
-      data: { userId, quantityMl: Number(quantityMl) }
-    });
+    const { data: waterLog, error } = await supabase
+      .from('WaterLog')
+      .insert([{ userId, quantityMl: Number(quantityMl) }])
+      .select()
+      .single();
+
+    if (error || !waterLog) {
+      console.error(error);
+      return NextResponse.json({ error: 'Failed to log water' }, { status: 500 });
+    }
     return NextResponse.json(waterLog, { status: 201 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to log water' }, { status: 500 });
   }
 }

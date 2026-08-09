@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
 
@@ -10,8 +10,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, password } = body;
     
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
+    const { data: user, error } = await supabase
+      .from('User')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (error || !user) {
       return NextResponse.json({ error: 'Invalid credentials.' }, { status: 401 });
     }
 

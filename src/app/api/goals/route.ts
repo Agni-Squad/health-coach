@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
@@ -20,10 +20,15 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { goalType, targetWeightKg, targetDate } = body;
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    const { data: user, error: userError } = await supabase
+      .from('User')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-    const age = new Date().getFullYear() - user.dateOfBirth.getFullYear();
+    if (userError || !user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+    const age = new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
     
     let bmr = 10 * user.currentWeightKg + 6.25 * user.heightCm - 5 * age;
     bmr += user.gender.toLowerCase() === 'male' ? 5 : -161;
@@ -55,20 +60,27 @@ export async function POST(req: Request) {
     const waterTargetMl = user.currentWeightKg * 35;
     const stepTarget = 10000;
 
-    const goal = await prisma.goal.create({
-      data: {
+    const { data: goal, error: goalError } = await supabase
+      .from('Goal')
+      .insert([{
         userId,
         goalType,
         targetWeightKg,
-        targetDate: new Date(targetDate),
+        targetDate: new Date(targetDate).toISOString(),
         bmr,
         dailyCalorieTarget,
         proteinTargetGrams,
         waterTargetMl,
         stepTarget,
         weeklyWeightChangeKg
-      }
-    });
+      }])
+      .select()
+      .single();
+
+    if (goalError || !goal) {
+      console.error(goalError);
+      return NextResponse.json({ error: 'Failed to create goal' }, { status: 500 });
+    }
 
     return NextResponse.json(goal, { status: 201 });
   } catch (error) {

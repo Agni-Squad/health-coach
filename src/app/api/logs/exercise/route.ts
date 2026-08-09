@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-key';
@@ -22,8 +22,13 @@ export async function POST(req: Request) {
 
   try {
     const { exerciseType, durationMin } = await req.json();
-    const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    const { data: user, error: userError } = await supabase
+      .from('User')
+      .select('currentWeightKg')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     const metValues: Record<string, number> = {
       'walking': 3.5, 'running': 8.0, 'cycling': 6.0, 'gym': 5.0, 'yoga': 2.5, 'swimming': 7.0, 'home workout': 4.0
@@ -32,11 +37,20 @@ export async function POST(req: Request) {
     
     const caloriesBurned = met * user.currentWeightKg * (Number(durationMin) / 60);
 
-    const exerciseLog = await prisma.exerciseLog.create({
-      data: { userId, exerciseType, durationMin: Number(durationMin), caloriesBurned }
-    });
+    const { data: exerciseLog, error: logError } = await supabase
+      .from('ExerciseLog')
+      .insert([{ userId, exerciseType, durationMin: Number(durationMin), caloriesBurned }])
+      .select()
+      .single();
+
+    if (logError || !exerciseLog) {
+      console.error(logError);
+      return NextResponse.json({ error: 'Failed to log exercise' }, { status: 500 });
+    }
+
     return NextResponse.json(exerciseLog, { status: 201 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: 'Failed to log exercise' }, { status: 500 });
   }
 }
