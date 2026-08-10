@@ -14,6 +14,8 @@ export default function LogActivity() {
   const [sleepHours, setSleepHours] = useState('');
   const [exerciseType, setExerciseType] = useState('walking');
   const [exerciseDuration, setExerciseDuration] = useState('');
+  // Exercise states
+  const [exercisesList, setExercisesList] = useState<{type: string, duration: number}[]>([]);
   
   // Food states
   const [logMethod, setLogMethod] = useState('photo');
@@ -320,12 +322,30 @@ export default function LogActivity() {
               <span style={{ fontSize: '24px' }}>🏃‍♂️</span> 
               <span style={{ fontSize: '20px', fontWeight: 700 }}>Activity & Fitness</span>
             </div>
+
+            {/* List of Added Exercises */}
+            {exercisesList.length > 0 && (
+              <div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Workouts to Log</h3>
+                {exercisesList.map((ex, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                    <div>
+                      <span style={{ fontWeight: 600, color: '#0F172A', textTransform: 'capitalize' }}>{ex.type}</span>
+                      <span style={{ marginLeft: '8px', color: '#64748B', fontSize: '14px' }}>{ex.duration} min</span>
+                    </div>
+                    <button onClick={() => setExercisesList(exercisesList.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', color: '#EF4444', fontWeight: 700, cursor: 'pointer', fontSize: '18px' }}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', background: exercisesList.length > 0 ? '#F1F5F9' : 'transparent', padding: exercisesList.length > 0 ? '20px' : '0', borderRadius: '16px' }}>
+              {exercisesList.length > 0 && <h3 style={{ fontSize: '14px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '-8px' }}>Add Another Activity</h3>}
+              
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Activity Type</label>
                 <select 
-                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#F8FAFC', fontSize: '15px' }}
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#FFFFFF', fontSize: '15px' }}
                   value={exerciseType} 
                   onChange={e => setExerciseType(e.target.value)}
                 >
@@ -348,13 +368,13 @@ export default function LogActivity() {
                     placeholder="e.g. 45" 
                     value={exerciseDuration} 
                     onChange={e => setExerciseDuration(e.target.value)} 
-                    style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#F8FAFC', fontSize: '15px', paddingRight: '40px' }}
+                    style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#FFFFFF', fontSize: '15px', paddingRight: '40px' }}
                   />
                   <span style={{ position: 'absolute', right: '16px', top: '14px', color: '#94A3B8', fontWeight: 600 }}>min</span>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
                 <button 
                   onClick={() => setExerciseDuration('15')}
                   style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
@@ -370,13 +390,53 @@ export default function LogActivity() {
               </div>
 
               <button 
-                style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0F172A 0%, #3B82F6 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '16px', fontSize: '16px', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.25)' }}
-                onClick={() => submitLog('exercise', { type: exerciseType, durationMinutes: Number(exerciseDuration) })}
-                disabled={loading || !exerciseDuration}
+                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'white', border: '2px solid #3B82F6', color: '#3B82F6', fontWeight: 700, cursor: 'pointer', marginTop: '8px', fontSize: '15px' }}
+                onClick={() => {
+                  if(exerciseDuration) {
+                    setExercisesList([...exercisesList, { type: exerciseType, duration: Number(exerciseDuration) }]);
+                    setExerciseDuration('');
+                  }
+                }}
+                disabled={!exerciseDuration}
               >
-                {loading ? 'Saving...' : 'Log Workout 🔥'}
+                + Add Activity to List
               </button>
             </div>
+
+            <button 
+              style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0F172A 0%, #3B82F6 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '32px', fontSize: '16px', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.25)' }}
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  const token = localStorage.getItem('token');
+                  const finalExercises = [...exercisesList];
+                  if (exerciseDuration) {
+                    finalExercises.push({ type: exerciseType, duration: Number(exerciseDuration) });
+                  }
+                  
+                  if (finalExercises.length === 0) return alert('Add an exercise first!');
+
+                  await Promise.all(finalExercises.map(ex => 
+                    fetch('/api/logs/exercise', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                      body: JSON.stringify({ type: ex.type, durationMinutes: ex.duration })
+                    })
+                  ));
+                  
+                  alert('All workouts logged successfully!');
+                  router.push('/');
+                } catch (e) {
+                  console.error(e);
+                  alert('Error logging workouts');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+              disabled={loading || (exercisesList.length === 0 && !exerciseDuration)}
+            >
+              {loading ? 'Saving...' : `Log All Workouts (${exercisesList.length + (exerciseDuration ? 1 : 0)}) 🔥`}
+            </button>
           </div>
         )}
 
