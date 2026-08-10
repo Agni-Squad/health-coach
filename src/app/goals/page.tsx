@@ -73,7 +73,14 @@ export default function HealthOverview() {
             </div>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Goal Achievement Period (Target Date)</label>
-              <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
+              <input 
+                type="date" 
+                value={targetDate} 
+                onChange={(e) => setTargetDate(e.target.value)} 
+                min={new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]}
+                required 
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} 
+              />
             </div>
             
             <button type="submit" style={{ width: '100%', padding: '14px', borderRadius: '8px', background: '#0F172A', color: 'white', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '12px' }}>
