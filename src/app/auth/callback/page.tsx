@@ -12,17 +12,19 @@ export default function AuthCallback() {
   const [status, setStatus] = useState('Authenticating...');
 
   useEffect(() => {
+    let redirectTimeout: NodeJS.Timeout;
+
     const processAuth = async () => {
-      // Wait a moment for Supabase client to parse the URL hash and set the session
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error || !session || !session.user) {
-        console.error('Session error:', error);
-        setStatus('Authentication failed. Redirecting...');
-        setTimeout(() => router.push('/login'), 2000);
+        // Do not redirect immediately. The Supabase client might still be parsing the URL hash fragment.
+        // We rely on the 5-second timeout fallback (below) or the onAuthStateChange listener.
         return;
       }
 
+      // If we got here, we have a session! Clear the fallback timeout.
+      clearTimeout(redirectTimeout);
       setStatus('Checking profile...');
       const email = session.user.email;
 
@@ -65,10 +67,19 @@ export default function AuthCallback() {
       }
     });
 
-    // Also run immediately just in case the session is already there
+    // Run immediately just in case the session is already parsed
     processAuth();
 
-    return () => authListener.subscription.unsubscribe();
+    // Fallback: if 4 seconds pass and no session is found, redirect to login
+    redirectTimeout = setTimeout(() => {
+      setStatus('Authentication failed or timed out. Redirecting...');
+      setTimeout(() => router.push('/login'), 1500);
+    }, 4000);
+
+    return () => {
+      authListener.subscription.unsubscribe();
+      clearTimeout(redirectTimeout);
+    };
   }, [router]);
 
   return (
