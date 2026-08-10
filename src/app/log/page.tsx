@@ -242,14 +242,12 @@ export default function LogActivity() {
               {/* Background measurements */}
               <div style={{ position: 'absolute', top: '25%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}></div>
               <div style={{ position: 'absolute', top: '50%', left: '0', width: '30px', borderTop: '2px solid rgba(56,189,248,0.5)' }}></div>
-              <div style={{ position: 'absolute', top: '75%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}></div>
-
-              <div style={{ 
+              <div style={{ position: 'absolute', top: '75%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}><              <div style={{ 
                 position: 'absolute', 
                 bottom: '0', 
                 left: '0', 
                 width: '100%', 
-                height: `${Math.min((waterMl / 3000) * 100, 100)}%`, 
+                height: `${Math.min((waterMl / 7000) * 100, 100)}%`, 
                 background: 'linear-gradient(180deg, #38BDF8 0%, #0284C7 100%)',
                 transition: 'height 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.3)'
@@ -273,34 +271,36 @@ export default function LogActivity() {
 
             <div style={{ marginTop: '24px', textAlign: 'center' }}>
               <div style={{ fontSize: '32px', fontWeight: 800, color: '#0F172A' }}>
-                {waterMl} <span style={{ fontSize: '16px', color: '#64748B', fontWeight: 600 }}>/ 3000 ml</span>
+                {waterMl} <span style={{ fontSize: '16px', color: '#64748B', fontWeight: 600 }}>/ 7000 ml</span>
               </div>
               <div style={{ fontSize: '14px', color: '#10B981', fontWeight: 600, marginTop: '4px' }}>
-                {waterMl >= 3000 ? 'Daily goal reached! 🎉' : `${3000 - waterMl} ml remaining`}
+                {waterMl >= 7000 ? 'Maximum reached! 🎉' : `${7000 - waterMl} ml to max`}
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%', marginTop: '32px' }}>
-              <button 
-                onClick={() => setWaterMl(prev => prev + 250)}
-                style={{ padding: '14px', borderRadius: '16px', background: 'white', border: '2px solid #E0F2FE', color: '#0284C7', fontWeight: 700, fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}
-                onMouseOver={e => e.currentTarget.style.background = '#F0F9FF'}
-                onMouseOut={e => e.currentTarget.style.background = 'white'}
-              >
-                + 250 ml 💧
-              </button>
-              <button 
-                onClick={() => setWaterMl(prev => prev + 500)}
-                style={{ padding: '14px', borderRadius: '16px', background: 'white', border: '2px solid #E0F2FE', color: '#0284C7', fontWeight: 700, fontSize: '16px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}
-                onMouseOver={e => e.currentTarget.style.background = '#F0F9FF'}
-                onMouseOut={e => e.currentTarget.style.background = 'white'}
-              >
-                + 500 ml 🥤
-              </button>
+            <div style={{ width: '100%', marginTop: '32px', padding: '0 16px' }}>
+              <input 
+                type="range" 
+                min="0" 
+                max="7000" 
+                step="50"
+                value={waterMl}
+                onChange={(e) => setWaterMl(Number(e.target.value))}
+                style={{ 
+                  width: '100%', 
+                  cursor: 'pointer',
+                  accentColor: '#0284C7' // Modern browsers support accentColor for native sliders
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94A3B8', marginTop: '8px', fontWeight: 600 }}>
+                <span>0 ml</span>
+                <span>3500 ml</span>
+                <span>7000 ml</span>
+              </div>
             </div>
 
             <button 
-              style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '16px', fontSize: '16px', boxShadow: '0 10px 25px rgba(2, 132, 199, 0.25)' }}
+              style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0284C7 0%, #0369A1 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '24px', fontSize: '16px', boxShadow: '0 10px 25px rgba(2, 132, 199, 0.25)' }}
               onClick={() => {
                 submitLog('water', { quantityMl: waterMl });
                 // Note: The submitLog currently pushes back to root which resets state.
