@@ -316,6 +316,90 @@ export default function LogActivity() {
           </div>
         )}
 
+        {activeTab === 'weight' && (
+          <div style={{ padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px', color: '#1E293B', width: '100%' }}>
+              <span style={{ fontSize: '24px' }}>⚖️</span> 
+              <span style={{ fontSize: '20px', fontWeight: 700 }}>Weight Logger</span>
+            </div>
+            
+            <div style={{ width: '100%', maxWidth: '300px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '24px', borderRadius: '24px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+              <button 
+                onClick={() => setWeightKg(prev => String(Math.max(0, Number(prev || 70) - 0.5)))}
+                style={{ width: '48px', height: '48px', borderRadius: '50%', border: 'none', background: 'white', color: '#3B82F6', fontSize: '24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+              >-</button>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <input 
+                  type="number" 
+                  step="0.1"
+                  value={weightKg}
+                  onChange={e => setWeightKg(e.target.value)}
+                  style={{ width: '80px', border: 'none', outline: 'none', background: 'transparent', fontSize: '40px', fontWeight: 800, color: '#0F172A', textAlign: 'center', padding: '0' }}
+                  placeholder="70"
+                />
+                <span style={{ color: '#64748B', fontWeight: 600, marginTop: '4px' }}>kg</span>
+              </div>
+
+              <button 
+                onClick={() => setWeightKg(prev => String(Number(prev || 70) + 0.5))}
+                style={{ width: '48px', height: '48px', borderRadius: '50%', border: 'none', background: 'white', color: '#3B82F6', fontSize: '24px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+              >+</button>
+            </div>
+
+            <button 
+              style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0F172A 0%, #3B82F6 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '32px', fontSize: '16px', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.25)' }}
+              onClick={() => submitLog('weight', { weightKg: Number(weightKg) })}
+              disabled={loading || !weightKg}
+            >
+              {loading ? 'Saving...' : 'Log Weight 🚀'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'sleep' && (
+          <div style={{ padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px', color: '#1E293B' }}>
+              <span style={{ fontSize: '24px' }}>🌙</span> 
+              <span style={{ fontSize: '20px', fontWeight: 700 }}>Sleep Tracker</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '16px', textAlign: 'center' }}>How many hours did you sleep?</label>
+                
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'baseline', marginBottom: '16px' }}>
+                  <span style={{ fontSize: '48px', fontWeight: 800, color: '#0F172A' }}>{sleepHours || '0'}</span>
+                  <span style={{ fontSize: '16px', fontWeight: 600, color: '#64748B', marginLeft: '4px' }}>hrs</span>
+                </div>
+
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="14" 
+                  step="0.5"
+                  value={sleepHours || '0'}
+                  onChange={(e) => setSleepHours(e.target.value)}
+                  style={{ width: '100%', cursor: 'pointer', accentColor: '#8B5CF6' }}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#94A3B8', marginTop: '8px', fontWeight: 600 }}>
+                  <span>0</span>
+                  <span>7</span>
+                  <span>14</span>
+                </div>
+              </div>
+              
+              <button 
+                style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #4C1D95 0%, #8B5CF6 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '16px', fontSize: '16px', boxShadow: '0 10px 25px rgba(139, 92, 246, 0.25)' }}
+                onClick={() => submitLog('sleep', { hours: Number(sleepHours) })}
+                disabled={loading || !sleepHours || sleepHours === '0'}
+              >
+                {loading ? 'Saving...' : 'Log Sleep 💤'}
+              </button>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'exercise' && (
           <div style={{ padding: '32px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: '#1E293B' }}>
