@@ -13,6 +13,9 @@ export default function HealthOverview() {
   const [heightCm, setHeightCm] = useState('');
   const [targetDate, setTargetDate] = useState('');
   
+  // Saved Goal State to display in the UI
+  const [savedGoal, setSavedGoal] = useState<any>(null);
+  
   // Simulated Android Health Connect Data
   const [metrics, setMetrics] = useState<any>({
     overallScore: 82,
@@ -40,6 +43,12 @@ export default function HealthOverview() {
     }
     // Mock user for UI focus
     setUser({ name: 'User' });
+    
+    // Check if we have a saved goal locally
+    const storedGoal = localStorage.getItem('userGoal');
+    if (storedGoal) {
+      setSavedGoal(JSON.parse(storedGoal));
+    }
   }, [router]);
 
   if (!user) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
@@ -58,7 +67,13 @@ export default function HealthOverview() {
         <div className="card" style={{ padding: '32px', borderRadius: '16px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', color: '#1E293B', textAlign: 'center' }}>Set Your Health Goal</h2>
           
-          <form onSubmit={(e) => { e.preventDefault(); setIsSettingGoal(false); alert('Goals saved successfully!'); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <form onSubmit={(e) => { 
+            e.preventDefault(); 
+            const goalData = { currentWeight, targetWeight, heightCm, targetDate };
+            localStorage.setItem('userGoal', JSON.stringify(goalData));
+            setSavedGoal(goalData);
+            setIsSettingGoal(false); 
+          }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Current Weight (kg)</label>
               <input type="number" step="0.1" value={currentWeight} onChange={(e) => setCurrentWeight(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
@@ -115,6 +130,28 @@ export default function HealthOverview() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12l7-7 7 7M12 19V5"/></svg>
           Improving from yesterday
         </div>
+
+        {/* Display Saved Goal Info */}
+        {savedGoal && (
+          <div style={{ marginTop: '24px', width: '100%', maxWidth: '700px', background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '12px', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Current Weight</span>
+              <span style={{ fontSize: '24px', fontWeight: 700 }}>{savedGoal.currentWeight} kg</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Target Goal</span>
+              <span style={{ fontSize: '24px', fontWeight: 700, color: '#38BDF8' }}>{savedGoal.targetWeight} kg</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Height</span>
+              <span style={{ fontSize: '24px', fontWeight: 700 }}>{savedGoal.heightCm} cm</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Deadline</span>
+              <span style={{ fontSize: '24px', fontWeight: 700 }}>{new Date(savedGoal.targetDate).toLocaleDateString()}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Activity Row */}
