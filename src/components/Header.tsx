@@ -72,6 +72,7 @@ export default function Header() {
                 color: isActive ? '#FFFFFF' : '#64748B',
                 textDecoration: 'none',
                 position: 'relative',
+                zIndex: 0, // CRITICAL: Creates a stacking context so the -1 z-index background doesn't go behind the header!
                 transition: 'color 0.2s ease',
               }}
               onMouseOver={(e) => {
