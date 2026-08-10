@@ -5,6 +5,13 @@ import { useRouter } from 'next/navigation';
 export default function HealthOverview() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isSettingGoal, setIsSettingGoal] = useState(false);
+  
+  // Goal Form State
+  const [currentWeight, setCurrentWeight] = useState('');
+  const [targetWeight, setTargetWeight] = useState('');
+  const [heightCm, setHeightCm] = useState('');
+  const [targetDate, setTargetDate] = useState('');
   
   // Simulated Android Health Connect Data
   const [metrics, setMetrics] = useState<any>({
@@ -37,11 +44,61 @@ export default function HealthOverview() {
 
   if (!user) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>;
 
+  if (isSettingGoal) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexDirection: 'column' }}>
+        <button 
+          onClick={() => setIsSettingGoal(false)} 
+          style={{ background: 'none', border: 'none', color: '#3B82F6', fontWeight: 600, cursor: 'pointer', textAlign: 'left', marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Overview
+        </button>
+
+        <div className="card" style={{ padding: '32px', borderRadius: '16px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', color: '#1E293B', textAlign: 'center' }}>Set Your Health Goal</h2>
+          
+          <form onSubmit={(e) => { e.preventDefault(); setIsSettingGoal(false); alert('Goals saved successfully!'); }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Current Weight (kg)</label>
+              <input type="number" step="0.1" value={currentWeight} onChange={(e) => setCurrentWeight(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Target Goal Weight (kg)</label>
+              <input type="number" step="0.1" value={targetWeight} onChange={(e) => setTargetWeight(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Height (cm)</label>
+              <input type="number" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Goal Achievement Period (Target Date)</label>
+              <input type="date" value={targetDate} onChange={(e) => setTargetDate(e.target.value)} required style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }} />
+            </div>
+            
+            <button type="submit" style={{ width: '100%', padding: '14px', borderRadius: '8px', background: '#0F172A', color: 'white', fontWeight: 600, border: 'none', cursor: 'pointer', marginTop: '12px' }}>
+              Save New Goals
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       
       {/* 1. Overall Health */}
-      <div className="card dark-card" style={{ padding: '32px', borderRadius: '16px', background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="card dark-card" style={{ padding: '32px', borderRadius: '16px', background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+        
+        {/* Toggle Goal Setting Link */}
+        <button 
+          onClick={() => setIsSettingGoal(true)}
+          style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+        >
+          Set New Goals 🎯
+        </button>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
           <span style={{ fontSize: '24px' }}>❤️</span>
           <span style={{ fontSize: '18px', fontWeight: 600 }}>Overall Health</span>
