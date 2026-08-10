@@ -12,6 +12,7 @@ export default function Header() {
   // Manage active tab state with useState
   const [activeTab, setActiveTab] = useState(pathname || '/');
   const [userName, setUserName] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Sync state if pathname changes (e.g. back/forward navigation)
   useEffect(() => {
@@ -104,35 +105,75 @@ export default function Header() {
       {/* User Display & Logout */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         {userName && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '14px', fontWeight: 600, color: '#1E293B' }}>{userName}</div>
             </div>
-            {/* Circular Avatar */}
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#E2E8F0', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
-              <span style={{ fontSize: '20px' }}>👩🏽</span>
-            </div>
             
-            {/* Logout Button */}
+            {/* Clickable User Avatar */}
             <button
-              onClick={handleLogout}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               style={{
-                marginLeft: '8px',
-                padding: '8px 16px',
-                backgroundColor: '#EF4444',
-                color: 'white',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                backgroundColor: '#F1F5F9',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                overflow: 'hidden',
                 border: 'none',
-                borderRadius: '8px',
                 cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: 600,
-                transition: 'background-color 0.2s'
+                color: '#475569',
+                transition: 'background-color 0.2s',
               }}
-              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#DC2626'}
-              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#EF4444'}
+              onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#E2E8F0'}
+              onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#F1F5F9'}
             >
-              Logout
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             </button>
+            
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: '0',
+                marginTop: '8px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                border: '1px solid #E2E8F0',
+                padding: '8px',
+                zIndex: 50,
+                minWidth: '150px'
+              }}>
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '8px 12px',
+                    backgroundColor: 'transparent',
+                    color: '#EF4444',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#FEF2F2'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
