@@ -177,25 +177,35 @@ export default function LogActivity() {
   const totalProtein = mealItems.reduce((acc, item) => acc + (Number(item.protein) || 0), 0);
 
   return (
-    <div style={{ padding: '24px', paddingBottom: '100px' }}>
-      <h1 className="text-h1" style={{ textAlign: 'center', marginBottom: '20px' }}>Log Activity</h1>
-      <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', marginBottom: '24px', paddingBottom: '8px' }}>
-        {['food', 'water', 'exercise', 'weight', 'sleep'].map(tab => (
-          <button key={tab} 
-                  style={{ 
-                    padding: '8px 16px', borderRadius: '20px', border: 'none', 
-                    background: activeTab === tab ? 'var(--accent-color)' : '#E5E7EB',
-                    fontWeight: activeTab === tab ? 600 : 400
-                  }} 
-                  onClick={() => { setActiveTab(tab); setShowReview(false); }}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
-        ))}
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px', paddingBottom: '100px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      
+      <div className="card dark-card" style={{ padding: '32px', borderRadius: '16px', background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%)', color: 'white', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+          <span style={{ fontSize: '24px' }}>✍️</span>
+          <span style={{ fontSize: '20px', fontWeight: 600 }}>Health Logger</span>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '24px' }}>Log your daily metrics to train your AI Coach</p>
+        
+        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px', width: '100%', justifyContent: 'center' }}>
+          {['food', 'water', 'exercise', 'weight', 'sleep'].map(tab => (
+            <button key={tab} 
+                    style={{ 
+                      padding: '10px 20px', borderRadius: '30px', border: 'none', 
+                      background: activeTab === tab ? 'white' : 'rgba(255,255,255,0.1)',
+                      color: activeTab === tab ? '#0F172A' : 'white',
+                      fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s ease',
+                      boxShadow: activeTab === tab ? '0 4px 12px rgba(0,0,0,0.1)' : 'none'
+                    }} 
+                    onClick={() => { setActiveTab(tab); setShowReview(false); }}>
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="card">
         {activeTab === 'water' && (
-          <div>
+          <div style={{ padding: '24px' }}>
             <h2 className="text-h2" style={{ marginBottom: '16px' }}>💧 Log Water</h2>
             <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
               <button className="btn-primary" onClick={() => submitLog('water', { quantityMl: 250 })}>+ 250ml</button>
@@ -205,8 +215,72 @@ export default function LogActivity() {
             <button className="btn-primary" style={{ marginTop: '16px' }} onClick={() => submitLog('water', { quantityMl: waterMl })} disabled={loading}>Save</button>
           </div>
         )}
-        
-        {/* Sleep, Weight, Exercise ... omitted to save space, but kept structure */}
+
+        {activeTab === 'exercise' && (
+          <div style={{ padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', color: '#1E293B' }}>
+              <span style={{ fontSize: '24px' }}>🏃‍♂️</span> 
+              <span style={{ fontSize: '20px', fontWeight: 700 }}>Activity & Fitness</span>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Activity Type</label>
+                <select 
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#F8FAFC', fontSize: '15px' }}
+                  value={exerciseType} 
+                  onChange={e => setExerciseType(e.target.value)}
+                >
+                  <option value="walking">Walking</option>
+                  <option value="running">Running</option>
+                  <option value="cycling">Cycling</option>
+                  <option value="swimming">Swimming</option>
+                  <option value="weightlifting">Weightlifting / Gym</option>
+                  <option value="yoga">Yoga</option>
+                  <option value="hiit">HIIT</option>
+                  <option value="sports">Sports</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Duration (minutes)</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="number" 
+                    placeholder="e.g. 45" 
+                    value={exerciseDuration} 
+                    onChange={e => setExerciseDuration(e.target.value)} 
+                    style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0', outline: 'none', background: '#F8FAFC', fontSize: '15px', paddingRight: '40px' }}
+                  />
+                  <span style={{ position: 'absolute', right: '16px', top: '14px', color: '#94A3B8', fontWeight: 600 }}>min</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <button 
+                  onClick={() => setExerciseDuration('15')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
+                >+15 min</button>
+                <button 
+                  onClick={() => setExerciseDuration('30')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
+                >+30 min</button>
+                <button 
+                  onClick={() => setExerciseDuration('60')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#475569', fontWeight: 600, cursor: 'pointer' }}
+                >+60 min</button>
+              </div>
+
+              <button 
+                style={{ width: '100%', padding: '16px', borderRadius: '12px', background: 'linear-gradient(135deg, #0F172A 0%, #3B82F6 100%)', color: 'white', fontWeight: 700, border: 'none', cursor: 'pointer', marginTop: '16px', fontSize: '16px', boxShadow: '0 10px 25px rgba(59, 130, 246, 0.25)' }}
+                onClick={() => submitLog('exercise', { type: exerciseType, durationMinutes: Number(exerciseDuration) })}
+                disabled={loading || !exerciseDuration}
+              >
+                {loading ? 'Saving...' : 'Log Workout 🔥'}
+              </button>
+            </div>
+          </div>
+        )}
 
         {activeTab === 'food' && (
           <div>
@@ -274,7 +348,7 @@ export default function LogActivity() {
                     {item.healthScore && (
                       <div style={{ marginTop: '8px' }}>
                         <span className="text-small" style={{ color: item.healthScore > 7 ? 'green' : 'orange' }}>Health Score: {item.healthScore}/10</span>
-                        {item.recommendation && <p className="text-small" style={{ fontStyle: 'italic', marginTop: '4px' }}>"{item.recommendation}"</p>}
+                        {item.recommendation && <p className="text-small" style={{ fontStyle: 'italic', marginTop: '4px' }}>&quot;{item.recommendation}&quot;</p>}
                       </div>
                     )}
                   </div>
