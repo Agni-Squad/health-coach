@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 export default function Header() {
   const pathname = usePathname();
@@ -68,19 +69,32 @@ export default function Header() {
                 padding: '8px 16px',
                 borderRadius: '8px',
                 fontWeight: '600',
-                backgroundColor: isActive ? '#0F172A' : 'transparent',
                 color: isActive ? '#FFFFFF' : '#64748B',
                 textDecoration: 'none',
-                transition: 'all 0.2s ease',
+                position: 'relative',
+                transition: 'color 0.2s ease',
               }}
               onMouseOver={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = '#F8FAFC';
+                if (!isActive) e.currentTarget.style.color = '#0F172A';
               }}
               onMouseOut={(e) => {
-                if (!isActive) e.currentTarget.style.backgroundColor = 'transparent';
+                if (!isActive) e.currentTarget.style.color = '#64748B';
               }}
             >
-              {item.name}
+              {isActive && (
+                <motion.div
+                  layoutId="activeTabIndicator"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundColor: '#0F172A',
+                    borderRadius: '8px',
+                    zIndex: -1
+                  }}
+                  transition={{ type: 'spring', duration: 0.5, bounce: 0.15 }}
+                />
+              )}
+              <span style={{ position: 'relative', zIndex: 1 }}>{item.name}</span>
             </Link>
           );
         })}
