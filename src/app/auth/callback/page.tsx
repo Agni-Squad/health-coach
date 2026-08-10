@@ -66,9 +66,20 @@ export default function AuthCallback() {
 
     processAuth();
 
-    // Remove the aggressive 4-second timeout. Instead, just inform the user if they're stuck.
     const stuckTimeout = setTimeout(() => {
-      setStatus(prev => prev === 'Authenticating...' ? 'Still authenticating... (Please ensure third-party cookies are allowed or try refreshing)' : prev);
+      let debugInfo = '';
+      if (typeof window !== 'undefined') {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const searchParams = new URLSearchParams(window.location.search);
+        const err = hashParams.get('error') || searchParams.get('error');
+        const errDesc = hashParams.get('error_description') || searchParams.get('error_description');
+        if (err) debugInfo = `Error: ${err} - ${errDesc}`;
+        else debugInfo = `URL Hash: ${window.location.hash} | Search: ${window.location.search}`;
+      }
+      
+      setStatus(prev => prev === 'Authenticating...' ? 
+        `Still authenticating... ${debugInfo ? `[Debug: ${debugInfo}]` : ''}` : prev
+      );
     }, 5000);
 
     return () => {
