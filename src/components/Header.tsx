@@ -41,9 +41,9 @@ export default function Header() {
 
   const navItems = [
     { name: 'Dashboard', path: '/' },
-    { name: 'Health Overview', path: '/goals' },
-    { name: 'Activity & Fitness', path: '/log' },
-    { name: 'Medical & Wellness', path: '/menu' },
+    { name: 'Fitness & Nutrition', path: '/log' },
+    { name: 'Medical', path: '/medical' },
+    { name: 'Wellness', path: '/wellness' },
   ];
 
   return (
