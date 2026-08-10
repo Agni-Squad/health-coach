@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     if (insertError || !user) {
       console.error(insertError);
-      return NextResponse.json({ error: 'Failed to create user.' }, { status: 500 });
+      return NextResponse.json({ error: insertError?.message || 'Failed to create user.' }, { status: 500 });
     }
 
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
