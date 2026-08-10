@@ -26,8 +26,33 @@ export default function LogActivity() {
   const [photoBase64, setPhotoBase64] = useState('');
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDrag = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -286,34 +311,64 @@ export default function LogActivity() {
           <div>
             <h2 className="text-h2" style={{ marginBottom: '16px' }}>🔥 Log Food</h2>
             {!showReview ? (
-              <>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                  <button className="btn-primary" style={{ opacity: logMethod === 'photo' ? 1 : 0.5 }} onClick={() => setLogMethod('photo')}>📸 Photo</button>
-                  <button className="btn-primary" style={{ opacity: logMethod === 'voice' ? 1 : 0.5 }} onClick={() => setLogMethod('voice')}>🎙️ Voice</button>
+              <div 
+                onDragEnter={handleDrag} 
+                onDragLeave={handleDrag} 
+                onDragOver={handleDrag} 
+                onDrop={handleDrop}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', border: dragActive ? '2px dashed #3B82F6' : '1px solid #E2E8F0', borderRadius: '16px', padding: '24px', background: dragActive ? '#F0F9FF' : '#F8FAFC', transition: 'all 0.2s ease', minHeight: '160px', justifyContent: 'center' }}>
+                  
+                  {photoBase64 && (
+                    <div style={{ position: 'relative', width: 'fit-content', margin: '0 auto' }}>
+                      <img src={photoBase64} alt="Food" style={{ height: '200px', borderRadius: '12px', objectFit: 'cover', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                      <button onClick={() => setPhotoBase64('')} style={{ position: 'absolute', top: '-12px', right: '-12px', background: '#EF4444', color: 'white', border: 'none', borderRadius: '50%', width: '30px', height: '30px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  )}
+
+                  {!photoBase64 && (
+                    <div style={{ textAlign: 'center', color: '#94A3B8', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                      <span style={{ fontWeight: 500 }}>Drag & drop a photo of your meal here</span>
+                      <span style={{ fontSize: '12px' }}>Or use the attachment button below</span>
+                    </div>
+                  )}
                 </div>
 
-                {logMethod === 'photo' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <input type="file" accept="image/*" className="input-field" onChange={handlePhotoUpload} ref={fileInputRef} />
-                    {photoBase64 && <img src={photoBase64} alt="Food Preview" style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px' }} />}
-                    <button className="btn-primary" onClick={analyzePhoto} disabled={analyzing}>
-                      {analyzing ? 'Analyzing Image...' : 'Analyze Photo'}
-                    </button>
-                  </div>
-                )}
+                <div style={{ position: 'relative', marginTop: '24px', display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #E2E8F0', borderRadius: '24px', padding: '8px 12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                  
+                  <button onClick={() => fileInputRef.current?.click()} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#F1F5F9'} onMouseOut={e => e.currentTarget.style.background = 'none'}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  </button>
+                  <input type="file" accept="image/*" onChange={handlePhotoUpload} ref={fileInputRef} style={{ display: 'none' }} />
 
-                {logMethod === 'voice' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <button className="btn-primary" onClick={toggleRecording} style={{ background: isRecording ? '#EF4444' : 'var(--accent-color)' }}>
-                      {isRecording ? '⏹️ Stop Recording' : '🎙️ Tap to Speak'}
-                    </button>
-                    <textarea className="input-field" placeholder="Or type what you ate..." value={voiceTranscript} onChange={e => setVoiceTranscript(e.target.value)} rows={3}></textarea>
-                    <button className="btn-primary" onClick={analyzeVoice} disabled={analyzing}>
-                      {analyzing ? 'Analyzing Speech...' : 'Analyze Voice'}
-                    </button>
+                  <input 
+                    placeholder={isRecording ? "Listening..." : "Describe what you ate..."}
+                    value={voiceTranscript}
+                    onChange={(e) => setVoiceTranscript(e.target.value)}
+                    style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', padding: '12px 12px', fontSize: '15px' }}
+                  />
+
+                  <button onClick={toggleRecording} style={{ background: isRecording ? '#EF4444' : 'none', border: 'none', color: isRecording ? 'white' : '#64748B', cursor: 'pointer', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseOver={e => !isRecording && (e.currentTarget.style.background = '#F1F5F9')} onMouseOut={e => !isRecording && (e.currentTarget.style.background = 'none')}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                  </button>
+                  
+                  <button onClick={() => {
+                    if (photoBase64) analyzePhoto();
+                    else if (voiceTranscript) analyzeVoice();
+                  }} disabled={analyzing || (!photoBase64 && !voiceTranscript)} style={{ background: '#3B82F6', border: 'none', color: 'white', cursor: (analyzing || (!photoBase64 && !voiceTranscript)) ? 'default' : 'pointer', padding: '10px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: '4px', opacity: (analyzing || (!photoBase64 && !voiceTranscript)) ? 0.5 : 1, transition: 'all 0.2s' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ transform: 'translateX(1px)' }}><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                  </button>
+                </div>
+
+                {analyzing && (
+                  <div style={{ textAlign: 'center', marginTop: '24px', color: '#64748B', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                    <div style={{ width: '16px', height: '16px', border: '2px solid #3B82F6', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                    AI is analyzing your meal...
+                    <style dangerouslySetInnerHTML={{__html: `@keyframes spin { 100% { transform: rotate(360deg); } }`}} />
                   </div>
                 )}
-              </>
+              </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <h3 className="text-h2">Review Detected Items</h3>
