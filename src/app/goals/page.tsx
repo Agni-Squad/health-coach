@@ -67,12 +67,45 @@ export default function HealthOverview() {
         <div className="card" style={{ padding: '32px', borderRadius: '16px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px', color: '#1E293B', textAlign: 'center' }}>Set Your Health Goal</h2>
           
-          <form onSubmit={(e) => { 
+          <form onSubmit={async (e) => { 
             e.preventDefault(); 
-            const goalData = { currentWeight, targetWeight, heightCm, targetDate };
-            localStorage.setItem('userGoal', JSON.stringify(goalData));
-            setSavedGoal(goalData);
-            setIsSettingGoal(false); 
+            const goalData = { 
+              currentWeightKg: parseFloat(currentWeight), 
+              targetWeightKg: parseFloat(targetWeight), 
+              heightCm: parseFloat(heightCm), 
+              targetDate 
+            };
+
+            try {
+              const token = localStorage.getItem('token');
+              const res = await fetch('/api/goals', {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(goalData)
+              });
+
+              if (res.ok) {
+                // Formatting data for the UI
+                const displayData = {
+                  currentWeight: goalData.currentWeightKg,
+                  targetWeight: goalData.targetWeightKg,
+                  heightCm: goalData.heightCm,
+                  targetDate: goalData.targetDate
+                };
+                localStorage.setItem('userGoal', JSON.stringify(displayData));
+                setSavedGoal(displayData);
+                setIsSettingGoal(false); 
+                alert('Goals saved successfully to the database!');
+              } else {
+                alert('Failed to save goals.');
+              }
+            } catch (err) {
+              console.error(err);
+              alert('Network error while saving goals.');
+            }
           }} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#475569', marginBottom: '8px' }}>Current Weight (kg)</label>

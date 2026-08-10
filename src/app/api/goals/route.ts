@@ -18,7 +18,12 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { goalType, targetWeightKg, targetDate } = body;
+    const { targetWeightKg, targetDate, currentWeightKg, heightCm } = body;
+    
+    // Automatically determine goal type based on weights
+    let goalType = 'Weight Maintenance';
+    if (targetWeightKg < currentWeightKg) goalType = 'Weight Loss';
+    else if (targetWeightKg > currentWeightKg) goalType = 'Weight Gain';
 
     const { data: user, error: userError } = await supabase
       .from('User')
@@ -28,9 +33,23 @@ export async function POST(req: Request) {
 
     if (userError || !user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
+    // Update User table with new weight and height from the form
+    if (currentWeightKg || heightCm) {
+      await supabase
+        .from('User')
+        .update({ 
+          currentWeightKg: currentWeightKg || user.currentWeightKg, 
+          heightCm: heightCm || user.heightCm 
+        })
+        .eq('id', userId);
+    }
+
+    const updatedWeight = currentWeightKg || user.currentWeightKg;
+    const updatedHeight = heightCm || user.heightCm;
+
     const age = new Date().getFullYear() - new Date(user.dateOfBirth).getFullYear();
     
-    let bmr = 10 * user.currentWeightKg + 6.25 * user.heightCm - 5 * age;
+    let bmr = 10 * updatedWeight + 6.25 * updatedHeight - 5 * age;
     bmr += user.gender.toLowerCase() === 'male' ? 5 : -161;
 
     const activityFactors: Record<string, number> = {
@@ -42,7 +61,7 @@ export async function POST(req: Request) {
     const tdee = bmr * (activityFactors[user.lifestyle?.toLowerCase() || 'sedentary'] || 1.2);
 
     let dailyCalorieTarget = tdee;
-    let proteinTargetGrams = user.currentWeightKg * 1.6;
+    let proteinTargetGrams = updatedWeight * 1.6;
     let weeklyWeightChangeKg = 0;
 
     if (goalType === 'Weight Loss') {
@@ -53,11 +72,11 @@ export async function POST(req: Request) {
       weeklyWeightChangeKg = 0.5;
     } else if (goalType === 'Muscle Gain') {
       dailyCalorieTarget += 300;
-      proteinTargetGrams = user.currentWeightKg * 2.0;
+      proteinTargetGrams = updatedWeight * 2.0;
       weeklyWeightChangeKg = 0.25;
     }
 
-    const waterTargetMl = user.currentWeightKg * 35;
+    const waterTargetMl = updatedWeight * 35;
     const stepTarget = 10000;
 
     const { data: goal, error: goalError } = await supabase
