@@ -120,7 +120,7 @@ export default function Home() {
               
               <div className="card card-interactive" onClick={() => toggleCard('steps')}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                  <span style={{ fontSize: '16px', fontWeight: 600 }}>Today's Steps</span>
+                  <span style={{ fontSize: '16px', fontWeight: 600 }}>Today&apos;s Steps</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#0EA5E9', fontSize: '12px', background: '#F0F9FF', padding: '4px 8px', borderRadius: '20px' }}>
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> 45 min
                   </div>
