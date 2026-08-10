@@ -12,23 +12,23 @@ export default function AuthCallback() {
   const [status, setStatus] = useState('Authenticating...');
 
   useEffect(() => {
-    let redirectTimeout: NodeJS.Timeout;
+    let isProcessing = false;
 
     const processAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error || !session || !session.user) {
-        // Do not redirect immediately. The Supabase client might still be parsing the URL hash fragment.
-        // We rely on the 5-second timeout fallback (below) or the onAuthStateChange listener.
-        return;
-      }
-
-      // If we got here, we have a session! Clear the fallback timeout.
-      clearTimeout(redirectTimeout);
-      setStatus('Checking profile...');
-      const email = session.user.email;
+      if (isProcessing) return;
+      isProcessing = true;
 
       try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error || !session || !session.user) {
+          isProcessing = false;
+          return;
+        }
+
+        setStatus('Checking profile...');
+        const email = session.user.email;
+
         // Check if user exists in our database
         const res = await fetch('/api/auth/google', {
           method: 'POST',
@@ -37,7 +37,6 @@ export default function AuthCallback() {
         });
 
         if (res.ok) {
-          // User exists! Save our custom JWT token and redirect to dashboard
           const data = await res.json();
           localStorage.setItem('token', data.token);
           localStorage.setItem('userName', data.name || session.user.user_metadata?.full_name || 'User');
@@ -46,39 +45,35 @@ export default function AuthCallback() {
           setStatus('Success! Redirecting...');
           router.push('/');
         } else if (res.status === 404) {
-          // User is authenticated with Google but hasn't completed Step 2 of our registration
           setStatus('Almost done! Redirecting to complete profile...');
           router.push('/register');
         } else {
-          setStatus('An error occurred. Please try again.');
-          setTimeout(() => router.push('/login'), 2000);
+          setStatus(`Backend Error: ${res.status}. Redirecting...`);
+          setTimeout(() => router.push('/login'), 3000);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        setStatus('Network error. Redirecting...');
-        setTimeout(() => router.push('/login'), 2000);
+        setStatus(`Network error: ${err.message}. Redirecting...`);
+        setTimeout(() => router.push('/login'), 3000);
       }
     };
 
-    // Listen for auth state change which triggers when the hash is parsed
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         processAuth();
       }
     });
 
-    // Run immediately just in case the session is already parsed
     processAuth();
 
-    // Fallback: if 4 seconds pass and no session is found, redirect to login
-    redirectTimeout = setTimeout(() => {
-      setStatus('Authentication failed or timed out. Redirecting...');
-      setTimeout(() => router.push('/login'), 1500);
-    }, 4000);
+    // Remove the aggressive 4-second timeout. Instead, just inform the user if they're stuck.
+    const stuckTimeout = setTimeout(() => {
+      setStatus(prev => prev === 'Authenticating...' ? 'Still authenticating... (Please ensure third-party cookies are allowed or try refreshing)' : prev);
+    }, 5000);
 
     return () => {
       authListener.subscription.unsubscribe();
-      clearTimeout(redirectTimeout);
+      clearTimeout(stuckTimeout);
     };
   }, [router]);
 
