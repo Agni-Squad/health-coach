@@ -242,7 +242,9 @@ export default function LogActivity() {
               {/* Background measurements */}
               <div style={{ position: 'absolute', top: '25%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}></div>
               <div style={{ position: 'absolute', top: '50%', left: '0', width: '30px', borderTop: '2px solid rgba(56,189,248,0.5)' }}></div>
-              <div style={{ position: 'absolute', top: '75%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}><              <div style={{ 
+              <div style={{ position: 'absolute', top: '75%', left: '0', width: '20px', borderTop: '2px solid rgba(56,189,248,0.3)' }}></div>
+
+              <div style={{ 
                 position: 'absolute', 
                 bottom: '0', 
                 left: '0', 
