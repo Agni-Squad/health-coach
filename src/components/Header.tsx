@@ -67,10 +67,10 @@ export default function Header() {
               style={{
                 padding: '8px 16px',
                 borderRadius: '8px',
-                fontWeight: isActive ? 'bold' : '500',
-                backgroundColor: isActive ? '#EFF6FF' : 'transparent', // distinct blue background if active
-                color: isActive ? '#2563EB' : '#64748B',
-                textDecoration: isActive ? 'underline' : 'none', // underline if active
+                fontWeight: '600',
+                backgroundColor: isActive ? '#0F172A' : 'transparent',
+                color: isActive ? '#FFFFFF' : '#64748B',
+                textDecoration: 'none',
                 transition: 'all 0.2s ease',
               }}
               onMouseOver={(e) => {
